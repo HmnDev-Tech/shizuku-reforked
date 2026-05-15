@@ -3,13 +3,14 @@
 ## Fork status
 
 This repository is an independent fork of Shizuku, based on the upstream project by RikkaApps.
-It is not the official upstream app.
+It is not the official upstream app. And this repository is an independent refork of Shizuku Modern by kerneldroid.
 
 This fork modernizes the Android manager UI with Jetpack Compose and Material 3 Expressive,
 tracks newer Android SDK targets, carries local server/manager fixes, and adds an ADB-backed
 module runner for ZIP modules.
 
-Upstream project: <https://github.com/RikkaApps/Shizuku>
+Upstream project: <https://github.com/RikkaApps/Shizuku> 
+| <https://github.com/kerneldroid/Shizuku-modern>
 
 ## Fork additions
 
