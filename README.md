@@ -25,7 +25,12 @@ Upstream project: <https://github.com/RikkaApps/Shizuku>
 - Module policy settings: Safe mode, Full access, and background action control.
 - Debug test module under `test-modules/adb-test-module.zip`.
 
+<img width="200" alt="photo_2026-05-15_22-06-38" src="https://github.com/user-attachments/assets/2fdb6fa0-9a7c-433d-b4b9-2cdb1f10539f" />
+<img width="200" alt="photo_2026-05-15_22-06-35" src="https://github.com/user-attachments/assets/ceb671a7-9d5f-4e4c-93f0-6ac4e12953e6" />
+<img width="200" alt="photo_2026-05-15_22-06-32" src="https://github.com/user-attachments/assets/c3cf2f6c-2879-4719-aa63-8253de9f0aa1" />
+
 ## Documentation
+
 
 - [ADB Modules guide](docs/adb-modules-guide.md)
 - [ADB Modules API reference](docs/adb-modules-api.md)
