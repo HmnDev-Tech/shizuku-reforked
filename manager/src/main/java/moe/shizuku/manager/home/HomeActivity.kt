@@ -99,6 +99,10 @@ import androidx.compose.animation.core.tween
 import moe.shizuku.manager.utils.CustomTabsHelper
 import moe.shizuku.manager.utils.EnvironmentUtils
 import moe.shizuku.manager.utils.UserHandleCompat
+import moe.shizuku.manager.ui.compose.ExpressiveCard
+import moe.shizuku.manager.ui.compose.HtmlText
+import moe.shizuku.manager.ui.compose.MonospaceLog
+import moe.shizuku.manager.ui.compose.ShizukuLazyScaffold
 import rikka.core.util.ClipboardUtils
 import rikka.lifecycle.Resource
 import rikka.lifecycle.Status
@@ -169,7 +173,6 @@ abstract class HomeActivity : AppActivity() {
 
             ShizukuExpressiveTheme {
                 Scaffold(
-                    contentWindowInsets = WindowInsets(0.dp),
                     bottomBar = {
                         NavigationBar(
                             containerColor = MaterialTheme.colorScheme.surfaceContainer,
@@ -471,7 +474,6 @@ private fun HomeScreen(
     }
 
     Scaffold(
-        contentWindowInsets = WindowInsets(0.dp),
         topBar = {
             TopAppBar(
                 title = {
@@ -532,8 +534,7 @@ private fun HomeScreen(
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
-                .windowInsetsPadding(WindowInsets.navigationBars),
+                .padding(innerPadding),
             contentPadding = PaddingValues(start = 16.dp, top = 8.dp, end = 16.dp, bottom = 16.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
@@ -542,6 +543,27 @@ private fun HomeScreen(
                     serviceResource = serviceResource,
                     status = status
                 )
+            }
+
+            if (moe.shizuku.manager.module.ModuleSettings.isDhizukuEnabled()) {
+                item {
+                    DhizukuCard(
+                        running = running,
+                        onStart = {
+                            // Basic implementation: attempt to start via Dhizuku binder
+                            try {
+                                val intent = context.packageManager.getLaunchIntentForPackage("com.rosan.dhizuku")
+                                if (intent != null) {
+                                    context.startActivity(intent)
+                                } else {
+                                    Toast.makeText(context, "Dhizuku not found", Toast.LENGTH_SHORT).show()
+                                }
+                            } catch (e: Exception) {
+                                Toast.makeText(context, e.message, Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    )
+                }
             }
 
             if (adbPermission) {
@@ -1053,4 +1075,33 @@ private fun buildDiagnostics(
         appendLine("Authorized apps: $grantedCount")
         appendLine("Local network: $localNetwork")
     }.trim()
+}
+
+@Composable
+private fun DhizukuCard(
+    running: Boolean,
+    onStart: () -> Unit
+) {
+    HomeCard(
+        icon = R.drawable.ic_baseline_link_24,
+        title = "Dhizuku",
+        body = if (running) {
+            "Shizuku is running through Dhizuku binder bridge."
+        } else {
+            "Experimental: Use Dhizuku (Device Owner) to start the Shizuku service."
+        }
+    ) {
+        if (!running) {
+            HomeButtons(
+                listOf(
+                    HomeButtonSpec(
+                        label = R.string.home_root_button_start,
+                        icon = R.drawable.ic_server_start_24dp,
+                        primary = true,
+                        onClick = onStart
+                    )
+                )
+            )
+        }
+    }
 }

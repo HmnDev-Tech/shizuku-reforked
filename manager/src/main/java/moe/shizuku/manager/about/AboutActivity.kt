@@ -113,13 +113,6 @@ class AboutActivity : AppActivity() {
                     color = MaterialTheme.colorScheme.onPrimaryContainer
                 )
                 
-                Text(
-                    text = "Reforked Edition",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Medium,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f)
-                )
-                
                 Spacer(modifier = Modifier.height(8.dp))
                 
                 Surface(

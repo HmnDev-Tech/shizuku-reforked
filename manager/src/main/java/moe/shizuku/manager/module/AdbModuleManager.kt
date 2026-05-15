@@ -306,13 +306,13 @@ object AdbModuleManager {
     }
 
     private fun readStreamTail(inputStream: java.io.InputStream): String {
-        return inputStream.use { input ->
-            val buffer = ByteArray(8192)
+        return inputStream.bufferedReader(Charsets.UTF_8).use { reader ->
+            val buffer = CharArray(8192)
             val tail = StringBuilder()
             while (true) {
-                val read = input.read(buffer)
+                val read = reader.read(buffer)
                 if (read <= 0) break
-                tail.append(String(buffer, 0, read, Charsets.UTF_8))
+                tail.append(buffer, 0, read)
                 if (tail.length > MAX_OUTPUT_CHARS * 2) {
                     tail.delete(0, tail.length - MAX_OUTPUT_CHARS)
                 }

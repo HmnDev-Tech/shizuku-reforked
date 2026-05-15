@@ -1,10 +1,21 @@
-Shizuku Reforked release.
+# Shizuku Reforked - Initial Release
 
-Changes:
-• Fixed an issue in release builds where `window.Shizuku` methods (`exec`, `execWithOptions`, `download`, `getModuleInfo`) were throwing `is not a function` errors. This was caused by R8/ProGuard stripping `@JavascriptInterface` methods during minification. Added proper keep rules to preserve the JavaScript bridge.
+## 🚀 Key Features
 
-Validation:
-• Verified ProGuard rules and rebuilt release APK.
+*   **Premium UI**: Completely redesigned manager using Jetpack Compose and Material 3 Expressive.
+*   **Floating Navigation**: Modern bottom bar for quick access to Modules, Logs, and Settings.
+*   **ADB Module Engine**: Install and run shell-based modules with ZIP support.
+*   **Watchdog Service**: Automatic background recovery for Shizuku service (Root mode).
+*   **Dhizuku Integration**: Experimental support for binding via Dhizuku (Device Owner).
+*   **TCP Mode**: Enhanced networking options for local ADB connections.
+*   **Log Scanner**: Safe log reading with OOM protection and multi-byte character support.
 
-APK SHA-256:
-67accff96ceb8dfe70ec7ed78af10a37c7f9f91d26050f0f104b324b4982a254
+## 🛠️ Technical Fixes
+
+*   Fixed JavaScript bridge minification (ProGuard keep rules).
+*   Fixed OOM vulnerability when reading large module logs.
+*   Fixed multi-byte UTF-8 character corruption in stream tails.
+*   Optimized window insets for edge-to-edge transparency.
+
+## 📦 Distribution
+This is an independent fork based on the upstream Shizuku project.

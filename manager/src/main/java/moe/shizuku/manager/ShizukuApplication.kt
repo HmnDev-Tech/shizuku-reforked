@@ -39,6 +39,10 @@ class ShizukuApplication : Application() {
         super.onCreate()
         application = this
         init(this)
+
+        if (ShizukuSettings.isWatchdogEnabled()) {
+            moe.shizuku.manager.service.WatchdogManager.start()
+        }
     }
 
 }

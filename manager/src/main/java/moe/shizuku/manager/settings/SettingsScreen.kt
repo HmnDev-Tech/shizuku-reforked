@@ -165,6 +165,11 @@ fun SettingsScreen() {
                     onCheckedChange = { enabled ->
                         ShizukuSettings.setWatchdogEnabled(enabled)
                         watchdogEnabled = ShizukuSettings.isWatchdogEnabled()
+                        if (enabled) {
+                            moe.shizuku.manager.service.WatchdogManager.start()
+                        } else {
+                            moe.shizuku.manager.service.WatchdogManager.stop()
+                        }
                     }
                 )
             }

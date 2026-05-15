@@ -157,19 +157,19 @@ private fun readLogSafe(module: AdbModule, type: String): String {
         }
         // Primary check: use the log file from the data class property
         if (logFile.exists() && logFile.isFile) {
-            return logFile.readText().ifBlank { "Log file is empty." }
+            return readFileTail(logFile)
         }
         // Fallback: check the logs directory directly for any matching file
         val logsDir = module.logsDir
         if (logsDir.isDirectory) {
             val fallback = logsDir.resolve("$type-last.log")
             if (fallback.exists() && fallback.isFile) {
-                return fallback.readText().ifBlank { "Log file is empty." }
+                return readFileTail(fallback)
             }
             // Also check if the module directory itself has a logs file
             val altLogFile = module.directory.resolve("$type-last.log")
             if (altLogFile.exists() && altLogFile.isFile) {
-                return altLogFile.readText().ifBlank { "Log file is empty." }
+                return readFileTail(altLogFile)
             }
         }
         // Check if the logs directory even exists
@@ -185,5 +185,23 @@ private fun readLogSafe(module: AdbModule, type: String): String {
         }
     } catch (e: Exception) {
         "Error reading log: ${e.message}\n${e.stackTraceToString().take(2000)}"
+    }
+}
+
+private fun readFileTail(file: java.io.File): String {
+    val limit = 64 * 1024L
+    return try {
+        if (file.length() <= limit) {
+            file.readText().ifBlank { "Log file is empty." }
+        } else {
+            java.io.RandomAccessFile(file, "r").use { raf ->
+                raf.seek(file.length() - limit)
+                val bytes = ByteArray(limit.toInt())
+                raf.readFully(bytes)
+                "[Truncated...]\n" + String(bytes, Charsets.UTF_8).ifBlank { "Log file is empty." }
+            }
+        }
+    } catch (e: Exception) {
+        "Error reading log: ${e.message}"
     }
 }
