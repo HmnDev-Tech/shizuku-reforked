@@ -1,21 +1,30 @@
-# Shizuku Reforked - Initial Release
+# Shizuku Modern - Service Enhancement Update
 
-## 🚀 Key Features
+This update introduces significant stability fixes and new connection methods for the Shizuku service.
 
-*   **Premium UI**: Completely redesigned manager using Jetpack Compose and Material 3 Expressive.
-*   **Floating Navigation**: Modern bottom bar for quick access to Modules, Logs, and Settings.
-*   **ADB Module Engine**: Install and run shell-based modules with ZIP support.
-*   **Watchdog Service**: Automatic background recovery for Shizuku service (Root mode).
-*   **Dhizuku Integration**: Experimental support for binding via Dhizuku (Device Owner).
-*   **TCP Mode**: Enhanced networking options for local ADB connections.
-*   **Log Scanner**: Safe log reading with OOM protection and multi-byte character support.
+## New Features
 
-## 🛠️ Technical Fixes
+### TCP Mode
+A persistent ADB connection method that allows starting the Shizuku service via local TCP (127.0.0.1:5555). This eliminates the need for repeated wireless ADB pairing on supported devices.
 
-*   Fixed JavaScript bridge minification (ProGuard keep rules).
-*   Fixed OOM vulnerability when reading large module logs.
-*   Fixed multi-byte UTF-8 character corruption in stream tails.
-*   Optimized window insets for edge-to-edge transparency.
+### Dhizuku Integration
+Full support for the Dhizuku API. Shizuku can now bind to Dhizuku's device management service to execute commands, providing an alternative to traditional ADB or Root startup methods.
 
-## 📦 Distribution
+## Improvements and Fixes
+
+### Stability
+- Fixed a critical application crash when accessing the "About" screen.
+- Resolved build-time encoding issues for AIDL-generated services on Windows environments.
+- Optimized coroutine management for service startup routines.
+
+### Build System
+- Enabled AIDL compilation support.
+- Configured UTF-8 encoding for all Java and Kotlin compilation tasks to ensure cross-platform build consistency.
+- Updated Dhizuku API integration to version 2.5.4.
+
+## Technical Details
+- Added custom IDhizukuService implementation for secure command execution.
+- Implemented tools:overrideLibrary to maintain compatibility with Android 7.0+.
+
+---
 This is an independent fork based on the upstream Shizuku project.

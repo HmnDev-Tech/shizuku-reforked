@@ -271,7 +271,5 @@ With %1$s, in any terminal app, you can connect to and interact with the shell r
     <string name="dhizuku_warning_message">Dhizuku is designed for Device Owner/admin privileges. Some shell and ADB-specific commands may not work properly or may be entirely unsupported when running Shizuku via Dhizuku. Are you sure you want to proceed?</string>
     <string name="settings_tcp_mode">TCP Mode</string>
     <string name="settings_tcp_mode_summary">Listen for server commands on localhost TCP socket (fallback)</string>
-    <string name="settings_watchdog">Shizuku Watchdog</string>
-    <string name="settings_watchdog_summary">Automatically attempt background recovery if service starts operating unexpectedly</string>
     <string name="settings_service_group">Service Maintenance</string>
 </resources>

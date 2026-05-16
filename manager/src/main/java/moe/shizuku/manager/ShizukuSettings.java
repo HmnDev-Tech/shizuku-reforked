@@ -26,7 +26,7 @@ public class ShizukuSettings {
     public static final String LANGUAGE = "language";
     public static final String KEEP_START_ON_BOOT = "start_on_boot";
     public static final String TCP_MODE = "tcp_mode";
-    public static final String WATCHDOG = "watchdog_enabled";
+
 
     private static SharedPreferences sPreferences;
 
@@ -111,11 +111,5 @@ public class ShizukuSettings {
         getPreferences().edit().putBoolean(TCP_MODE, enabled).apply();
     }
 
-    public static boolean isWatchdogEnabled() {
-        return getPreferences().getBoolean(WATCHDOG, true); // Default to true to enhance UX stability!
-    }
 
-    public static void setWatchdogEnabled(boolean enabled) {
-        getPreferences().edit().putBoolean(WATCHDOG, enabled).apply();
-    }
 }

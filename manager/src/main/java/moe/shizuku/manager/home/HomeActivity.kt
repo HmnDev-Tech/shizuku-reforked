@@ -110,6 +110,9 @@ import rikka.lifecycle.viewModels
 import rikka.shizuku.Shizuku
 import rikka.shizuku.ShizukuApiConstants
 import rikka.html.text.HtmlCompat as RikkaHtmlCompat
+import moe.shizuku.manager.module.ModuleSettings
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 
 abstract class HomeActivity : AppActivity() {
 
@@ -239,7 +242,11 @@ abstract class HomeActivity : AppActivity() {
                                     onCopyDiagnostics = { copyDiagnostics(it) },
                                     onRequestLocalNetworkPermission = {
                                         requestLocalNetworkPermission { permissionRefreshTick.intValue++ }
-                                    }
+                                    },
+                                    onStartTcpMode = { startTcpMode() },
+                                    onStartDhizuku = { startDhizukuMode() },
+                                    tcpModeEnabled = ShizukuSettings.isTcpMode(),
+                                    dhizukuEnabled = ModuleSettings.isDhizukuEnabled()
                                 )
                                 1 -> moe.shizuku.manager.module.ModulesScreen(onOpenWebUi = {
                                     startActivity(
@@ -414,6 +421,72 @@ abstract class HomeActivity : AppActivity() {
             .setPrimaryClip(ClipData.newPlainText(getString(R.string.home_diagnostics_title), text))
         Toast.makeText(this, R.string.home_diagnostics_copied, Toast.LENGTH_SHORT).show()
     }
+    private fun startTcpMode() {
+        lifecycleScope.launch {
+            kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                try {
+                    val host = "127.0.0.1"
+                    val port = 5555
+                    val key = moe.shizuku.manager.adb.AdbKey(moe.shizuku.manager.adb.PreferenceAdbKeyStore(ShizukuSettings.getPreferences()), "shizuku")
+                    val client = moe.shizuku.manager.adb.AdbClient(host, port, key)
+                    client.connect()
+                    client.shellCommand(Starter.internalCommand) { _ -> }
+                    client.close()
+                    kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
+                        Toast.makeText(this@HomeActivity, "TCP command sent", Toast.LENGTH_SHORT).show()
+                    }
+                } catch (e: Exception) {
+                    kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
+                        Toast.makeText(this@HomeActivity, "TCP failed: ${e.message}", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        }
+    }
+
+    private fun startDhizukuMode() {
+        try {
+            if (!com.rosan.dhizuku.api.Dhizuku.init(this)) {
+                Toast.makeText(this, "Dhizuku init failed", Toast.LENGTH_SHORT).show()
+                return
+            }
+            if (com.rosan.dhizuku.api.Dhizuku.isPermissionGranted()) {
+                executeDhizuku()
+            } else {
+                com.rosan.dhizuku.api.Dhizuku.requestPermission(object : com.rosan.dhizuku.api.DhizukuRequestPermissionListener() {
+                    override fun onRequestPermission(grantResult: Int) {
+                        if (grantResult == android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                            executeDhizuku()
+                        } else {
+                            runOnUiThread { Toast.makeText(this@HomeActivity, "Permission denied", Toast.LENGTH_SHORT).show() }
+                        }
+                    }
+                })
+            }
+        } catch (e: Exception) {
+            Toast.makeText(this, "Dhizuku error: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun executeDhizuku() {
+        try {
+            val userServiceArgs = com.rosan.dhizuku.api.DhizukuUserServiceArgs(android.content.ComponentName(this, moe.shizuku.manager.dhizuku.DhizukuService::class.java))
+            com.rosan.dhizuku.api.Dhizuku.bindUserService(userServiceArgs, object : android.content.ServiceConnection {
+                override fun onServiceConnected(name: android.content.ComponentName?, service: android.os.IBinder?) {
+                    val dhizukuService = moe.shizuku.manager.dhizuku.IDhizukuService.Stub.asInterface(service)
+                    try {
+                        dhizukuService.runCommand(Starter.internalCommand)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
+
+                override fun onServiceDisconnected(name: android.content.ComponentName?) {}
+            })
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
 
     companion object {
         private const val SDK_ANDROID_16 = 36
@@ -460,7 +533,11 @@ private fun HomeScreen(
     onOpenAdbPermissionHelp: () -> Unit,
     onLearnMore: () -> Unit,
     onCopyDiagnostics: (String) -> Unit,
-    onRequestLocalNetworkPermission: () -> Unit
+    onRequestLocalNetworkPermission: () -> Unit,
+    onStartTcpMode: () -> Unit,
+    onStartDhizuku: () -> Unit,
+    tcpModeEnabled: Boolean,
+    dhizukuEnabled: Boolean
 ) {
     val context = LocalContext.current
     val status = serviceResource?.data ?: ServiceStatus()
@@ -545,26 +622,7 @@ private fun HomeScreen(
                 )
             }
 
-            if (moe.shizuku.manager.module.ModuleSettings.isDhizukuEnabled()) {
-                item {
-                    DhizukuCard(
-                        running = running,
-                        onStart = {
-                            // Basic implementation: attempt to start via Dhizuku binder
-                            try {
-                                val intent = context.packageManager.getLaunchIntentForPackage("com.rosan.dhizuku")
-                                if (intent != null) {
-                                    context.startActivity(intent)
-                                } else {
-                                    Toast.makeText(context, "Dhizuku not found", Toast.LENGTH_SHORT).show()
-                                }
-                            } catch (e: Exception) {
-                                Toast.makeText(context, e.message, Toast.LENGTH_SHORT).show()
-                            }
-                        }
-                    )
-                }
-            }
+
 
             if (adbPermission) {
                 item {
@@ -637,6 +695,16 @@ private fun HomeScreen(
                 if (!isRooted) {
                     item {
                         RootCard(rootRestart, onStartRoot)
+                    }
+                }
+                if (tcpModeEnabled) {
+                    item {
+                        TcpModeCard(onStartTcpMode)
+                    }
+                }
+                if (dhizukuEnabled) {
+                    item {
+                        DhizukuCard(onStartDhizuku)
                     }
                 }
             }
@@ -1077,31 +1145,43 @@ private fun buildDiagnostics(
     }.trim()
 }
 
+
 @Composable
-private fun DhizukuCard(
-    running: Boolean,
-    onStart: () -> Unit
-) {
+private fun TcpModeCard(onStartTcpMode: () -> Unit) {
     HomeCard(
-        icon = R.drawable.ic_baseline_link_24,
-        title = "Dhizuku",
-        body = if (running) {
-            "Shizuku is running through Dhizuku binder bridge."
-        } else {
-            "Experimental: Use Dhizuku (Device Owner) to start the Shizuku service."
-        }
+        icon = R.drawable.ic_server_ok_24dp,
+        title = stringResource(R.string.settings_tcp_mode),
+        body = stringResource(R.string.settings_tcp_mode_summary)
     ) {
-        if (!running) {
-            HomeButtons(
-                listOf(
-                    HomeButtonSpec(
-                        label = R.string.home_root_button_start,
-                        icon = R.drawable.ic_server_start_24dp,
-                        primary = true,
-                        onClick = onStart
-                    )
+        HomeButtons(
+            listOf(
+                HomeButtonSpec(
+                    label = android.R.string.ok,
+                    icon = R.drawable.ic_baseline_link_24,
+                    primary = true,
+                    onClick = onStartTcpMode
                 )
             )
-        }
+        )
+    }
+}
+
+@Composable
+private fun DhizukuCard(onStartDhizuku: () -> Unit) {
+    HomeCard(
+        icon = R.drawable.ic_system_icon,
+        title = stringResource(R.string.dhizuku_mode_title),
+        body = stringResource(R.string.dhizuku_mode_summary)
+    ) {
+        HomeButtons(
+            listOf(
+                HomeButtonSpec(
+                    label = android.R.string.ok,
+                    icon = R.drawable.ic_baseline_link_24,
+                    primary = true,
+                    onClick = onStartDhizuku
+                )
+            )
+        )
     }
 }

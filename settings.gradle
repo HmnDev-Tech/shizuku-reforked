@@ -23,6 +23,8 @@ dependencyResolutionManagement {
             url = uri("https://jitpack.io")
             content {
                 includeGroup("com.github.topjohnwu.libsu")
+                includeGroup("io.github.iamr0s")
+                includeGroup("com.github.iamr0s")
             }
         }
     }

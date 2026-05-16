@@ -196,7 +196,23 @@ private fun readFileTail(file: java.io.File): String {
         } else {
             java.io.RandomAccessFile(file, "r").use { raf ->
                 raf.seek(file.length() - limit)
-                val bytes = ByteArray(limit.toInt())
+                // Skip past any UTF-8 continuation bytes (10xxxxxx) to avoid
+                // landing in the middle of a multi-byte character sequence.
+                var skipped = 0
+                while (skipped < 4) {
+                    val b = raf.read()
+                    if (b == -1) break
+                    skipped++
+                    // A valid UTF-8 start byte is either 0xxxxxxx or 11xxxxxx.
+                    // Continuation bytes match 10xxxxxx (0x80..0xBF).
+                    if (b and 0xC0 != 0x80) {
+                        // This byte is a valid start — seek back so it's included.
+                        raf.seek(raf.filePointer - 1)
+                        break
+                    }
+                }
+                val remaining = (file.length() - raf.filePointer).toInt()
+                val bytes = ByteArray(remaining)
                 raf.readFully(bytes)
                 "[Truncated...]\n" + String(bytes, Charsets.UTF_8).ifBlank { "Log file is empty." }
             }

@@ -21,6 +21,7 @@
     <string name="action_stop">Остановить Shizuku</string>
     <string name="about_view_source_code">Исходный код доступен на %s</string>
     <string name="action_about">О приложении</string>
+    <string name="about_source_code_button">Исходный код</string>
     <string name="settings_translation_summary">Помогите перевести %s на ваш язык</string>
     <string name="settings_translation">Участвуйте в переводе</string>
     <string name="settings_translation_contributors">Авторы перевода</string>
@@ -226,7 +227,5 @@
     <string name="dhizuku_warning_message">Dhizuku предназначен для управления правами администратора устройства (Device Owner). Некоторые функции ADB и оболочки могут работать некорректно или не поддерживаться при активации Shizuku через Dhizuku. Вы уверены, что хотите продолжить?</string>
     <string name="settings_tcp_mode">TCP Mode</string>
     <string name="settings_tcp_mode_summary">Слушать команды сервера через локальный TCP-сокет (fallback)</string>
-    <string name="settings_watchdog">Служба Watchdog</string>
-    <string name="settings_watchdog_summary">Автоматически перезапускать Shizuku в фоне при обнаружении некорректной работы</string>
     <string name="settings_service_group">Обслуживание службы</string>
 </resources>

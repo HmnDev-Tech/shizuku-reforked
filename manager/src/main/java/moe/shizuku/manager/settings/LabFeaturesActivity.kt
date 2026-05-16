@@ -2,7 +2,6 @@ package moe.shizuku.manager.settings
 
 import android.os.Bundle
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -14,6 +13,7 @@ import androidx.compose.ui.res.stringResource
 import moe.shizuku.manager.R
 import moe.shizuku.manager.app.AppActivity
 import moe.shizuku.manager.module.ModuleSettings
+import moe.shizuku.manager.ui.compose.GroupDivider
 import moe.shizuku.manager.ui.compose.SettingsGroup
 import moe.shizuku.manager.ui.compose.ShizukuExpressiveTheme
 import moe.shizuku.manager.ui.compose.ShizukuLazyScaffold
@@ -50,7 +50,7 @@ class LabFeaturesActivity : AppActivity() {
                                     }
                                 }
                             )
-                            moe.shizuku.manager.ui.compose.GroupDivider()
+                            GroupDivider()
                             SwitchSettingsRow(
                                 icon = R.drawable.ic_outline_info_24,
                                 title = stringResource(R.string.dhizuku_mode_title),
@@ -116,3 +116,4 @@ class LabFeaturesActivity : AppActivity() {
         }
     }
 }
+

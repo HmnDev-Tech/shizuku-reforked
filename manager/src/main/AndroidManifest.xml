@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <uses-sdk tools:overrideLibrary="com.rosan.dhizuku.api" />
+
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -154,6 +156,11 @@
             android:enabled="true"
             android:exported="false"
             android:foregroundServiceType="shortService" />
+
+        <service
+            android:name=".dhizuku.DhizukuService"
+            android:enabled="true"
+            android:exported="true" />
 
         <receiver
             android:name=".receiver.BootCompleteReceiver"

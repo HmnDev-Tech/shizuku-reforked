@@ -19,6 +19,7 @@ object ModuleSettings {
     private const val KEY_CONNECTOR_ENABLED = "shizuku_connector_enabled"
     private const val KEY_DHIZUKU_ENABLED = "shizuku_dhizuku_enabled"
 
+
     enum class AccessMode(
         val value: String,
         @param:StringRes val labelRes: Int,
@@ -207,4 +208,6 @@ object ModuleSettings {
     fun setDhizukuEnabled(value: Boolean) {
         ShizukuSettings.getPreferences().edit().putBoolean(KEY_DHIZUKU_ENABLED, value).apply()
     }
+
+
 }

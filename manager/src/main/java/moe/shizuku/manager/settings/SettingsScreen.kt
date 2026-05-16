@@ -69,9 +69,6 @@ fun SettingsScreen() {
     var tcpMode by remember {
         mutableStateOf(ShizukuSettings.isTcpMode())
     }
-    var watchdogEnabled by remember {
-        mutableStateOf(ShizukuSettings.isWatchdogEnabled())
-    }
     var languageTag by remember {
         mutableStateOf(prefs.getString(LANGUAGE, "SYSTEM") ?: "SYSTEM")
     }
@@ -154,22 +151,6 @@ fun SettingsScreen() {
                     onCheckedChange = { enabled ->
                         ShizukuSettings.setTcpMode(enabled)
                         tcpMode = ShizukuSettings.isTcpMode()
-                    }
-                )
-                GroupDivider()
-                SwitchSettingsRow(
-                    icon = R.drawable.ic_outline_play_arrow_24,
-                    title = stringResource(R.string.settings_watchdog),
-                    summary = stringResource(R.string.settings_watchdog_summary),
-                    checked = watchdogEnabled,
-                    onCheckedChange = { enabled ->
-                        ShizukuSettings.setWatchdogEnabled(enabled)
-                        watchdogEnabled = ShizukuSettings.isWatchdogEnabled()
-                        if (enabled) {
-                            moe.shizuku.manager.service.WatchdogManager.start()
-                        } else {
-                            moe.shizuku.manager.service.WatchdogManager.stop()
-                        }
                     }
                 )
             }
