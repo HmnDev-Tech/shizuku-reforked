@@ -3,14 +3,14 @@
 ## Fork status
 
 This repository is an independent fork of Shizuku, based on the upstream project by RikkaApps.
-It is not the official upstream app. And this repository is an independent refork of Shizuku Modern by kerneldroid.
+It is not the official upstream app. And this repository is an independent refork of Nightzuku by kerneldroid.
 
 This fork modernizes the Android manager UI with Jetpack Compose and Material 3 Expressive,
 tracks newer Android SDK targets, carries local server/manager fixes, and adds an ADB-backed
 module runner for ZIP modules.
 
 Upstream project: <https://github.com/RikkaApps/Shizuku> 
-| <https://github.com/kerneldroid/Shizuku-modern>
+| <https://github.com/kerneldroid/Nightzuku>
 
 ## Fork additions
 
@@ -25,10 +25,6 @@ Upstream project: <https://github.com/RikkaApps/Shizuku>
 - Module features: `module.prop`, banner, enable/disable switch, `action.sh`, policy-gated `service.sh`, local WebUI, delete, path checks, size limits, output limits, and last-run logs.
 - Module policy settings: Safe mode, Full access, and background action control.
 - Debug test module under `test-modules/adb-test-module.zip`.
-
-<img width="200" alt="photo_2026-05-15_22-06-38" src="https://github.com/user-attachments/assets/2fdb6fa0-9a7c-433d-b4b9-2cdb1f10539f" />
-<img width="200" alt="photo_2026-05-15_22-06-35" src="https://github.com/user-attachments/assets/ceb671a7-9d5f-4e4c-93f0-6ac4e12953e6" />
-<img width="200" alt="photo_2026-05-15_22-06-32" src="https://github.com/user-attachments/assets/c3cf2f6c-2879-4719-aa63-8253de9f0aa1" />
 
 ## Documentation
 
