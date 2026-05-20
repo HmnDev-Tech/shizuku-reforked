@@ -11,8 +11,7 @@ import moe.shizuku.server.IShizukuApplication;
 import rikka.shizuku.server.util.Logger;
 
 public class ClientManager<ConfigMgr extends ConfigManager> {
-
-    protected static final Logger LOGGER = new Logger("UserServiceRecord");
+    protected static final Logger LOGGER = new Logger("ClientManager");
 
     private final ConfigMgr configManager;
     private final List<ClientRecord> clientRecords = Collections.synchronizedList(new ArrayList<>());
@@ -38,12 +37,14 @@ public class ClientManager<ConfigMgr extends ConfigManager> {
     }
 
     public ClientRecord findClient(int uid, int pid) {
-        for (ClientRecord clientRecord : clientRecords) {
-            if (clientRecord.pid == pid && clientRecord.uid == uid) {
-                return clientRecord;
+        synchronized (this) {
+            for (ClientRecord clientRecord : clientRecords) {
+                if (clientRecord.pid == pid && clientRecord.uid == uid) {
+                    return clientRecord;
+                }
             }
+            return null;
         }
-        return null;
     }
 
     public ClientRecord requireClient(int callingUid, int callingPid) {

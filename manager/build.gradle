@@ -75,7 +75,7 @@ def androidSdkDirectory = {
     def localProperties = rootProject.file('local.properties')
     if (localProperties.canRead()) {
         def props = new Properties()
-        props.load(new FileInputStream(localProperties))
+        props.load(new InputStreamReader(new FileInputStream(localProperties), "UTF-8"))
         sdkPath = props['sdk.dir']
         if (sdkPath != null && !sdkPath.isBlank()) {
             return file(sdkPath)
@@ -232,3 +232,24 @@ dependencies {
 }
 
 apply from: rootProject.file('signing.gradle')
+
+tasks.configureEach { task ->
+    if (task.name.startsWith("compile") && task.name.endsWith("Aidl")) {
+        task.doLast {
+            def aidlOutDir = layout.buildDirectory.dir("generated/aidl_source_output_dir").get().asFile
+            if (aidlOutDir.exists()) {
+                aidlOutDir.eachFileRecurse { f ->
+                    if (f.name.endsWith(".java")) {
+                        try {
+                            def content = f.getText("Cp1251")
+                            content = content.replaceAll(/[^\x00-\x7F]/, "?")
+                            f.write(content, "UTF-8")
+                        } catch (Exception e) {
+                            println("Failed to post-process AIDL file ${f.name}: ${e.message}")
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

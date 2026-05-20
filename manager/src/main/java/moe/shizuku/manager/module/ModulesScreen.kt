@@ -104,7 +104,7 @@ fun ModulesScreen(onOpenWebUi: (String) -> Unit) {
         scope.launch {
             runningModuleId = module.id
             output = runCatching {
-                val result = AdbModuleManager.runAction(module)
+                val result = AdbModuleManager.runActionStreaming(module)
                 context.getString(R.string.modules_action_result, result.exitCode) to result.combinedOutput
             }.getOrElse {
                 context.getString(R.string.modules_action_failed) to (it.message ?: it.javaClass.simpleName)

@@ -158,13 +158,16 @@ abstract class HomeActivity : AppActivity() {
             LaunchedEffect(serviceResource?.status, serviceResource?.data?.uid) {
                 val status = serviceResource?.data ?: return@LaunchedEffect
                 if (serviceResource?.status == Status.SUCCESS && status.isRunning) {
-                    ShizukuSettings.setLastLaunchMode(
-                        if (status.uid == 0) {
-                            ShizukuSettings.LaunchMethod.ROOT
-                        } else {
-                            ShizukuSettings.LaunchMethod.ADB
-                        }
-                    )
+                    val currentMode = ShizukuSettings.getLastLaunchMode()
+                    if (currentMode != ShizukuSettings.LaunchMethod.DHIZUKU) {
+                        ShizukuSettings.setLastLaunchMode(
+                            if (status.uid == 0) {
+                                ShizukuSettings.LaunchMethod.ROOT
+                            } else {
+                                ShizukuSettings.LaunchMethod.ADB
+                            }
+                        )
+                    }
                     try {
                         AdbModuleManager.runEnabledServicesIfAllowed(applicationContext)
                     } catch (_: Throwable) {
@@ -197,7 +200,7 @@ abstract class HomeActivity : AppActivity() {
                                 selected = selectedTab == 2,
                                 onClick = { selectedTab = 2 },
                                 icon = { ShizukuIcon(R.drawable.ic_terminal_24, contentDescription = null) },
-                                label = { Text("Logs") }
+                                label = { Text("Comput") }
                             )
                             NavigationBarItem(
                                 selected = selectedTab == 3,
@@ -243,9 +246,7 @@ abstract class HomeActivity : AppActivity() {
                                     onRequestLocalNetworkPermission = {
                                         requestLocalNetworkPermission { permissionRefreshTick.intValue++ }
                                     },
-                                    onStartTcpMode = { startTcpMode() },
                                     onStartDhizuku = { startDhizukuMode() },
-                                    tcpModeEnabled = ShizukuSettings.isTcpMode(),
                                     dhizukuEnabled = ModuleSettings.isDhizukuEnabled()
                                 )
                                 1 -> moe.shizuku.manager.module.ModulesScreen(onOpenWebUi = {
@@ -254,7 +255,7 @@ abstract class HomeActivity : AppActivity() {
                                             .putExtra(moe.shizuku.manager.module.ModuleWebViewActivity.EXTRA_MODULE_ID, it)
                                     )
                                 })
-                                2 -> moe.shizuku.manager.logs.LogsScreen()
+                                2 -> moe.shizuku.manager.logs.ComputScreen()
                                 3 -> moe.shizuku.manager.settings.SettingsScreen()
                             }
                         }
@@ -299,6 +300,7 @@ abstract class HomeActivity : AppActivity() {
             .setMessage(R.string.dialog_stop_message)
             .setPositiveButton(android.R.string.ok) { _: DialogInterface?, _: Int ->
                 try {
+                    moe.shizuku.manager.service.WatchdogManager.expectingDeath = true
                     Shizuku.exit()
                 } catch (_: Throwable) {
                 }
@@ -404,7 +406,7 @@ abstract class HomeActivity : AppActivity() {
     private fun buildLocalNetworkPermissionState(): LocalNetworkPermissionState {
         val permission = when {
             Build.VERSION.SDK_INT >= SDK_ANDROID_17 -> PERMISSION_ACCESS_LOCAL_NETWORK
-            Build.VERSION.SDK_INT >= SDK_ANDROID_16 -> Manifest.permission.NEARBY_WIFI_DEVICES
+            Build.VERSION.SDK_INT >= SDK_ANDROID_13 -> Manifest.permission.NEARBY_WIFI_DEVICES
             else -> null
         }
 
@@ -421,74 +423,17 @@ abstract class HomeActivity : AppActivity() {
             .setPrimaryClip(ClipData.newPlainText(getString(R.string.home_diagnostics_title), text))
         Toast.makeText(this, R.string.home_diagnostics_copied, Toast.LENGTH_SHORT).show()
     }
-    private fun startTcpMode() {
-        lifecycleScope.launch {
-            kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
-                try {
-                    val host = "127.0.0.1"
-                    val port = 5555
-                    val key = moe.shizuku.manager.adb.AdbKey(moe.shizuku.manager.adb.PreferenceAdbKeyStore(ShizukuSettings.getPreferences()), "shizuku")
-                    val client = moe.shizuku.manager.adb.AdbClient(host, port, key)
-                    client.connect()
-                    client.shellCommand(Starter.internalCommand) { _ -> }
-                    client.close()
-                    kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
-                        Toast.makeText(this@HomeActivity, "TCP command sent", Toast.LENGTH_SHORT).show()
-                    }
-                } catch (e: Exception) {
-                    kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
-                        Toast.makeText(this@HomeActivity, "TCP failed: ${e.message}", Toast.LENGTH_SHORT).show()
-                    }
-                }
-            }
-        }
-    }
-
     private fun startDhizukuMode() {
-        try {
-            if (!com.rosan.dhizuku.api.Dhizuku.init(this)) {
-                Toast.makeText(this, "Dhizuku init failed", Toast.LENGTH_SHORT).show()
-                return
+        startActivity(
+            Intent(this, StarterActivity::class.java).apply {
+                putExtra(StarterActivity.EXTRA_IS_ROOT, false)
+                putExtra(StarterActivity.EXTRA_IS_DHIZUKU, true)
             }
-            if (com.rosan.dhizuku.api.Dhizuku.isPermissionGranted()) {
-                executeDhizuku()
-            } else {
-                com.rosan.dhizuku.api.Dhizuku.requestPermission(object : com.rosan.dhizuku.api.DhizukuRequestPermissionListener() {
-                    override fun onRequestPermission(grantResult: Int) {
-                        if (grantResult == android.content.pm.PackageManager.PERMISSION_GRANTED) {
-                            executeDhizuku()
-                        } else {
-                            runOnUiThread { Toast.makeText(this@HomeActivity, "Permission denied", Toast.LENGTH_SHORT).show() }
-                        }
-                    }
-                })
-            }
-        } catch (e: Exception) {
-            Toast.makeText(this, "Dhizuku error: ${e.message}", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    private fun executeDhizuku() {
-        try {
-            val userServiceArgs = com.rosan.dhizuku.api.DhizukuUserServiceArgs(android.content.ComponentName(this, moe.shizuku.manager.dhizuku.DhizukuService::class.java))
-            com.rosan.dhizuku.api.Dhizuku.bindUserService(userServiceArgs, object : android.content.ServiceConnection {
-                override fun onServiceConnected(name: android.content.ComponentName?, service: android.os.IBinder?) {
-                    val dhizukuService = moe.shizuku.manager.dhizuku.IDhizukuService.Stub.asInterface(service)
-                    try {
-                        dhizukuService.runCommand(Starter.internalCommand)
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                    }
-                }
-
-                override fun onServiceDisconnected(name: android.content.ComponentName?) {}
-            })
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
+        )
     }
 
     companion object {
+        private const val SDK_ANDROID_13 = 33
         private const val SDK_ANDROID_16 = 36
         private const val SDK_ANDROID_17 = 37
         private const val PERMISSION_ACCESS_LOCAL_NETWORK = "android.permission.ACCESS_LOCAL_NETWORK"
@@ -534,9 +479,7 @@ private fun HomeScreen(
     onLearnMore: () -> Unit,
     onCopyDiagnostics: (String) -> Unit,
     onRequestLocalNetworkPermission: () -> Unit,
-    onStartTcpMode: () -> Unit,
     onStartDhizuku: () -> Unit,
-    tcpModeEnabled: Boolean,
     dhizukuEnabled: Boolean
 ) {
     val context = LocalContext.current
@@ -695,11 +638,6 @@ private fun HomeScreen(
                 if (!isRooted) {
                     item {
                         RootCard(rootRestart, onStartRoot)
-                    }
-                }
-                if (tcpModeEnabled) {
-                    item {
-                        TcpModeCard(onStartTcpMode)
                     }
                 }
                 if (dhizukuEnabled) {
@@ -1104,7 +1042,11 @@ private fun htmlToPlainText(value: String): String {
 private fun buildServiceSummary(context: android.content.Context, status: ServiceStatus): String {
     if (!status.isRunning) return ""
 
-    val user = if (status.uid == 0) "root" else "adb"
+    val user = when {
+        ShizukuSettings.getLastLaunchMode() == ShizukuSettings.LaunchMethod.DHIZUKU -> "dhizuku"
+        status.uid == 0 -> "root"
+        else -> "adb"
+    }
     val version = "${status.apiVersion}.${status.patchVersion}"
     val latestVersion = "${Shizuku.getLatestServiceVersion()}.${ShizukuApiConstants.SERVER_PATCH_VERSION}"
     val raw = if (
@@ -1170,14 +1112,14 @@ private fun TcpModeCard(onStartTcpMode: () -> Unit) {
 private fun DhizukuCard(onStartDhizuku: () -> Unit) {
     HomeCard(
         icon = R.drawable.ic_system_icon,
-        title = stringResource(R.string.dhizuku_mode_title),
-        body = stringResource(R.string.dhizuku_mode_summary)
+        title = htmlStringResource(R.string.home_dhizuku_title),
+        body = htmlStringResource(R.string.home_dhizuku_description)
     ) {
         HomeButtons(
             listOf(
                 HomeButtonSpec(
-                    label = android.R.string.ok,
-                    icon = R.drawable.ic_baseline_link_24,
+                    label = R.string.home_root_button_start,
+                    icon = R.drawable.ic_server_start_24dp,
                     primary = true,
                     onClick = onStartDhizuku
                 )

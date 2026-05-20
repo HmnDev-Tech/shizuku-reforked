@@ -107,6 +107,8 @@ public class ShizukuProvider extends ContentProvider {
         ShizukuProvider.enableSuiInitialization = false;
     }
 
+    private static BroadcastReceiver receiver;
+
     /**
      * Require binder for non-provider process, should have {@link #enableMultiProcessSupport(boolean)} called first.
      *
@@ -119,21 +121,23 @@ public class ShizukuProvider extends ContentProvider {
 
         Log.d(TAG, "request binder in non-provider process");
 
-        BroadcastReceiver receiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                BinderContainer container = intent.getParcelableExtra(EXTRA_BINDER);
-                if (container != null && container.binder != null) {
-                    Log.i(TAG, "binder received from broadcast");
-                    Shizuku.onBinderReceived(container.binder, context.getPackageName());
+        if (receiver == null) {
+            receiver = new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent intent) {
+                    BinderContainer container = intent.getParcelableExtra(EXTRA_BINDER);
+                    if (container != null && container.binder != null) {
+                        Log.i(TAG, "binder received from broadcast");
+                        Shizuku.onBinderReceived(container.binder, context.getPackageName());
+                    }
                 }
-            }
-        };
+            };
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            context.registerReceiver(receiver, new IntentFilter(ACTION_BINDER_RECEIVED), Context.RECEIVER_NOT_EXPORTED);
-        } else {
-            context.registerReceiver(receiver, new IntentFilter(ACTION_BINDER_RECEIVED));
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                context.getApplicationContext().registerReceiver(receiver, new IntentFilter(ACTION_BINDER_RECEIVED), Context.RECEIVER_NOT_EXPORTED);
+            } else {
+                context.getApplicationContext().registerReceiver(receiver, new IntentFilter(ACTION_BINDER_RECEIVED));
+            }
         }
 
         Bundle reply;

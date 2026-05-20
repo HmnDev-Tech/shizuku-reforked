@@ -36,6 +36,7 @@ import java.net.ConnectException
 import javax.net.ssl.SSLProtocolException
 
 private class NotRootedException : Exception()
+private class DhizukuException(message: String, cause: Throwable? = null) : Exception(message, cause)
 
 class StarterActivity : AppActivity() {
 
@@ -46,6 +47,7 @@ class StarterActivity : AppActivity() {
         ViewModel(
             this,
             intent.getBooleanExtra(EXTRA_IS_ROOT, true),
+            intent.getBooleanExtra(EXTRA_IS_DHIZUKU, false),
             intent.getStringExtra(EXTRA_HOST),
             intent.getIntExtra(EXTRA_PORT, 0)
         )
@@ -63,6 +65,7 @@ class StarterActivity : AppActivity() {
         super.onCreate(savedInstanceState)
 
         val startedWithRoot = intent.getBooleanExtra(EXTRA_IS_ROOT, true)
+        val startedWithDhizuku = intent.getBooleanExtra(EXTRA_IS_DHIZUKU, false)
 
         viewModel.output.observe(this) {
             val output = it.data.orEmpty().trim()
@@ -100,6 +103,9 @@ class StarterActivity : AppActivity() {
                     is SSLProtocolException -> {
                         message = R.string.adb_pair_required
                     }
+                    is DhizukuException -> {
+                        // Already logged in the output
+                    }
                 }
 
                 if (message != 0) {
@@ -124,11 +130,15 @@ class StarterActivity : AppActivity() {
                 ) {
                     item {
                         ExpressiveCard(
-                            icon = if (startedWithRoot) R.drawable.ic_root_24dp else R.drawable.ic_adb_24dp,
-                            title = if (startedWithRoot) {
-                                HtmlText(R.string.home_root_title)
-                            } else {
-                                HtmlText(R.string.home_wireless_adb_title)
+                            icon = when {
+                                startedWithDhizuku -> R.drawable.ic_system_icon
+                                startedWithRoot -> R.drawable.ic_root_24dp
+                                else -> R.drawable.ic_adb_24dp
+                            },
+                            title = when {
+                                startedWithDhizuku -> HtmlText(R.string.home_dhizuku_title)
+                                startedWithRoot -> HtmlText(R.string.home_root_title)
+                                else -> HtmlText(R.string.home_wireless_adb_title)
                             },
                             body = if (failed) {
                                 stringResource(R.string.notification_service_start_failed)
@@ -151,12 +161,13 @@ class StarterActivity : AppActivity() {
     companion object {
 
         const val EXTRA_IS_ROOT = "$EXTRA.IS_ROOT"
+        const val EXTRA_IS_DHIZUKU = "$EXTRA.IS_DHIZUKU"
         const val EXTRA_HOST = "$EXTRA.HOST"
         const val EXTRA_PORT = "$EXTRA.PORT"
     }
 }
 
-private class ViewModel(context: Context, root: Boolean, host: String?, port: Int) : androidx.lifecycle.ViewModel() {
+private class ViewModel(context: Context, root: Boolean, dhizuku: Boolean, host: String?, port: Int) : androidx.lifecycle.ViewModel() {
 
     private val sb = StringBuilder()
     private val outputLock = Any()
@@ -166,10 +177,10 @@ private class ViewModel(context: Context, root: Boolean, host: String?, port: In
 
     init {
         try {
-            if (root) {
-                startRoot()
-            } else {
-                startAdb(host!!, port)
+            when {
+                dhizuku -> startDhizuku(context)
+                root -> startRoot()
+                else -> startAdb(host!!, port)
             }
         } catch (e: Throwable) {
             postResult(e)
@@ -225,6 +236,8 @@ private class ViewModel(context: Context, root: Boolean, host: String?, port: In
                 }
             }
 
+            ShizukuSettings.setLastLaunchMode(ShizukuSettings.LaunchMethod.ROOT)
+
             Shell.cmd(Starter.internalCommand).to(object : CallbackList<String?>() {
                 override fun onAddElement(s: String?) {
                     appendRaw(s)
@@ -256,6 +269,7 @@ private class ViewModel(context: Context, root: Boolean, host: String?, port: In
 
             AdbClient(host, port, key).runCatching {
                 connect()
+                ShizukuSettings.setLastLaunchMode(ShizukuSettings.LaunchMethod.ADB)
                 shellCommand(Starter.internalCommand) {
                     synchronized(outputLock) {
                         sb.append(String(it))
@@ -268,6 +282,87 @@ private class ViewModel(context: Context, root: Boolean, host: String?, port: In
 
                 appendLine("\n${Log.getStackTraceString(it)}")
                 postResult(it)
+            }
+        }
+    }
+
+    private fun startDhizuku(context: Context) {
+        synchronized(outputLock) {
+            sb.append("Starting with Dhizuku (Device Owner)...").append('\n').append('\n')
+        }
+        postResult()
+
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                appendLine("Initializing Dhizuku...")
+                val initResult = com.rosan.dhizuku.api.Dhizuku.init(context.applicationContext)
+                if (!initResult) {
+                    appendLine("✗ Dhizuku init failed. Is Dhizuku app installed and active?")
+                    postResult(DhizukuException("Dhizuku init failed"))
+                    return@launch
+                }
+                appendLine("✓ Dhizuku initialized\n")
+
+                appendLine("Checking Dhizuku permission...")
+                if (!com.rosan.dhizuku.api.Dhizuku.isPermissionGranted()) {
+                    appendLine("Requesting Dhizuku permission...")
+                    val permissionGranted = kotlinx.coroutines.suspendCancellableCoroutine<Boolean> { cont ->
+                        com.rosan.dhizuku.api.Dhizuku.requestPermission(object : com.rosan.dhizuku.api.DhizukuRequestPermissionListener() {
+                            override fun onRequestPermission(grantResult: Int) {
+                                cont.resume(grantResult == android.content.pm.PackageManager.PERMISSION_GRANTED) {}
+                            }
+                        })
+                    }
+                    if (!permissionGranted) {
+                        appendLine("✗ Dhizuku permission denied")
+                        postResult(DhizukuException("Dhizuku permission denied"))
+                        return@launch
+                    }
+                }
+                appendLine("✓ Dhizuku permission granted\n")
+
+                appendLine("Binding Dhizuku user service...")
+                val serviceResult = kotlinx.coroutines.suspendCancellableCoroutine<android.os.IBinder?> { cont ->
+                    val userServiceArgs = com.rosan.dhizuku.api.DhizukuUserServiceArgs(
+                        android.content.ComponentName(context.applicationContext, moe.shizuku.manager.dhizuku.DhizukuService::class.java)
+                    )
+                    val bound = com.rosan.dhizuku.api.Dhizuku.bindUserService(userServiceArgs, object : android.content.ServiceConnection {
+                        override fun onServiceConnected(name: android.content.ComponentName?, service: android.os.IBinder?) {
+                            if (cont.isActive) cont.resumeWith(Result.success(service))
+                        }
+                        override fun onServiceDisconnected(name: android.content.ComponentName?) {}
+                    })
+                    if (!bound && cont.isActive) {
+                        cont.resumeWith(Result.success(null))
+                    }
+                }
+
+                if (serviceResult == null) {
+                    appendLine("✗ Dhizuku service binding failed.")
+                    appendLine("  Make sure Dhizuku is set as Device Owner and is active.")
+                    postResult(DhizukuException("Dhizuku service binding failed"))
+                    return@launch
+                }
+                appendLine("✓ Dhizuku service connected\n")
+
+                val dhizukuService = moe.shizuku.manager.dhizuku.IDhizukuService.Stub.asInterface(serviceResult)
+
+                // Directly run starter command using Dhizuku Device Owner privileges!
+                appendLine("Starting Shevery server via Dhizuku Device Owner privileges...")
+                ShizukuSettings.setLastLaunchMode(ShizukuSettings.LaunchMethod.DHIZUKU)
+
+                dhizukuService.runCommand(Starter.internalCommand)
+
+                appendLine("✓ Starter command executed successfully.")
+                appendLine("Waiting for Shevery service to initialize...")
+                kotlinx.coroutines.delay(2000)
+                appendLine("✓ Initialization complete.")
+                postResult()
+
+            } catch (e: Exception) {
+                appendLine("\n✗ Dhizuku error: ${e.message}")
+                appendLine(Log.getStackTraceString(e))
+                postResult(DhizukuException("Dhizuku failed: ${e.message}", e))
             }
         }
     }

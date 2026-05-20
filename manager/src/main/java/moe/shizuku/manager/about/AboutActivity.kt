@@ -9,12 +9,12 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -83,7 +83,15 @@ class AboutActivity : AppActivity() {
             MaterialTheme.colorScheme.primaryContainer,
             MaterialTheme.colorScheme.tertiaryContainer
         )
-        
+
+        val context = androidx.compose.ui.platform.LocalContext.current
+        val appIcon = remember {
+            val bitmap = android.graphics.BitmapFactory.decodeResource(
+                context.resources, R.mipmap.ic_launcher
+            )
+            bitmap?.asImageBitmap()
+        }
+
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -94,27 +102,27 @@ class AboutActivity : AppActivity() {
             contentAlignment = Alignment.Center
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Image(
-                    painter = painterResource(R.drawable.ic_launcher),
-                    contentDescription = "App Icon",
-                    modifier = Modifier
-                        .size(96.dp)
-                        .clip(CircleShape)
-                        .background(Color.White.copy(alpha = 0.15f))
-                        .padding(12.dp)
-                )
-                
+                if (appIcon != null) {
+                    Image(
+                        bitmap = appIcon,
+                        contentDescription = "App Icon",
+                        modifier = Modifier
+                            .size(96.dp)
+                            .clip(CircleShape)
+                    )
+                }
+
                 Spacer(modifier = Modifier.height(16.dp))
-                
+
                 Text(
                     text = stringResource(R.string.app_name),
                     style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onPrimaryContainer
                 )
-                
+
                 Spacer(modifier = Modifier.height(8.dp))
-                
+
                 Surface(
                     shape = RoundedCornerShape(16.dp),
                     color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.1f),
@@ -168,9 +176,9 @@ class AboutActivity : AppActivity() {
             SettingsRow(
                 icon = R.drawable.ic_baseline_link_24,
                 title = stringResource(R.string.about_source_code_button),
-                summary = "github.com/RikkaApps/Shizuku",
+                summary = "github.com/HmnDev-Tech/shizuku-reforked",
                 onClick = {
-                    CustomTabsHelper.launchUrlOrCopy(context, "https://github.com/RikkaApps/Shizuku")
+                    CustomTabsHelper.launchUrlOrCopy(context, "https://github.com/HmnDev-Tech/shizuku-reforked")
                 }
             )
             GroupDivider()

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name" translatable="false">Shizuku</string>
+    <string name="app_name" translatable="false">Shevery</string>
 
     <!-- To translators: you can leave your here -->
     <string name="translation_contributors" />
@@ -12,7 +12,7 @@
 
     <!-- Home - Adb -->
     <string name="home_adb_title"><![CDATA[Start by connecting to a computer]]></string>
-    <string name="home_adb_description"><![CDATA[For devices without root, you need to use adb to start Shizuku (requires computer connection). This process needs to be repeated every time the device is restarted. Please <b><a href=\"%1$s\">read the help</a></b>.]]></string>
+    <string name="home_adb_description"><![CDATA[For devices without root, you need to use adb to start Shevery (requires computer connection). This process needs to be repeated every time the device is restarted. Please <b><a href=\"%1$s\">read the help</a></b>.]]></string>
     <string name="home_adb_button_view_help">Read help</string>
     <string name="home_adb_button_view_command">View command</string>
     <string name="home_adb_dialog_view_command_message"><![CDATA[<font face="monospace">%1$s</font><br><br>* There are some other considerations, please confirm that you have read the help first.]]></string>
@@ -21,7 +21,7 @@
 
     <!-- Home - Wireless Adb -->
     <string name="home_wireless_adb_title"><![CDATA[Start via Wireless debugging]]></string>
-    <string name="home_wireless_adb_description"><![CDATA[On Android 11 or above, you can enable Wireless debugging and start Shizuku directly from your device, without connecting to a computer.<p>Please view the step-by-step guide first.]]></string>
+    <string name="home_wireless_adb_description"><![CDATA[On Android 11 or above, you can enable Wireless debugging and start Shevery directly from your device, without connecting to a computer.<p>Please view the step-by-step guide first.]]></string>
     <string name="home_wireless_adb_description_pre_11"><![CDATA[Before Android 11, connecting to a computer is required to enable Wireless debugging.]]></string>
     <string name="home_wireless_adb_view_guide_button">Step-by-step guide</string>
     <string name="home_local_network_title">Local network access</string>
@@ -33,7 +33,7 @@
 
     <!-- Adb -->
     <string name="dialog_adb_discovery">Searching for wireless debugging service</string>
-    <string name="dialog_adb_discovery_message">Please enable \"Wireless debugging\" in \"Developer options\". \"Wireless debugging\" is automatically disabled when network changes.\n\nNote, do not disable \"Developer options\" or \"USB debugging\", or Shizuku will be stopped.</string>
+    <string name="dialog_adb_discovery_message">Please enable \"Wireless debugging\" in \"Developer options\". \"Wireless debugging\" is automatically disabled when network changes.\n\nNote, do not disable \"Developer options\" or \"USB debugging\", or Shevery will be stopped.</string>
     <string name="dialog_adb_discovery_message_toggle_wireless_debugging">Please try to disable and enable \"Wireless debugging\" if it keeps searching.</string>
     <string name="dialog_adb_port">Port</string>
     <string name="dialog_adb_invalid_port">Port is an integer ranging from 1 to 65535.</string>
@@ -51,22 +51,22 @@
     <string name="adb_pair_required">Please go through the pairing step first.</string>
     <string name="development_settings">Developer options</string>
     <string name="notification_settings">Notification options</string>
-    <string name="adb_pairing_tutorial_title">Pair Shizuku with your device</string>
-    <string name="adb_pairing_tutorial_content_notification">A notification from Shizuku will help you complete the pairing.</string>
+    <string name="adb_pairing_tutorial_title">Pair Shevery with your device</string>
+    <string name="adb_pairing_tutorial_content_notification">A notification from Shevery will help you complete the pairing.</string>
     <string name="adb_pairing_tutorial_content_steps">Enter \"Developer options\" - \"Wireless debugging\". Tap \"Pair device with pairing code\", you will see a six-digit code.</string>
     <string name="adb_pairing_tutorial_content_enter_pairing_code">Enter the code in the notification to complete pairing.</string>
-    <string name="adb_pairing_tutorial_content_notification_blocked">The pairing process needs you to interact with a notification from Shizuku. Please allow Shizuku to post notifications.</string>
+    <string name="adb_pairing_tutorial_content_notification_blocked">The pairing process needs you to interact with a notification from Shevery. Please allow Shevery to post notifications.</string>
     <string name="adb_pairing_tutorial_content_miui">MIUI users may need to switch notification style to \"Android\" from \"Notification\" - \"Notification shade\" in system settings.</string>
     <string name="adb_pairing_tutorial_content_miui_2">Otherwise, you may not able to enter paring code from the notification.</string>
     <string name="adb_pairing_tutorial_content_left_is_clickable">Please note, left part of the \"Wireless debugging\" option is clickable, tapping it will open a new page. Only turing on the switch on the right is incorrect.</string>
-    <string name="adb_pairing_tutorial_content_finish">Back to Shizuku and start Shizuku.</string>
-    <string name="adb_pairing_tutorial_content_network">Shizuku needs to access local network. It is controlled by the network permission.</string>
-    <string name="adb_pairing_tutorial_content_network_limation_not_foreground">Some systems (such as MIUI) disallow apps to access the network when they are not visible, even if the app uses foreground service as standard. Please disable battery optimization features for Shizuku on such systems.</string>
+    <string name="adb_pairing_tutorial_content_finish">Back to Shevery and start Shevery.</string>
+    <string name="adb_pairing_tutorial_content_network">Shevery needs to access local network. It is controlled by the network permission.</string>
+    <string name="adb_pairing_tutorial_content_network_limation_not_foreground">Some systems (such as MIUI) disallow apps to access the network when they are not visible, even if the app uses foreground service as standard. Please disable battery optimization features for Shevery on such systems.</string>
 
     <!-- Home - Root -->
     <string name="home_root_title"><![CDATA[Start (for rooted devices)]]></string>
-    <string name="home_root_description"><![CDATA[In addition, Shizuku can be started automatically on boot. If not, please check if your system or third-party tools have restricted Shizuku.<br>You can refer to %s.]]></string>
-    <string name="home_root_description_sui"><![CDATA[If you are using Magisk, you can try %1$s. For root users, it will eventually replace Shizuku. Note, existing applications needs to change a little to use %2$s.]]></string>
+    <string name="home_root_description"><![CDATA[In addition, Shevery can be started automatically on boot. If not, please check if your system or third-party tools have restricted Shevery.<br>You can refer to %s.]]></string>
+    <string name="home_root_description_sui"><![CDATA[If you are using Magisk, you can try %1$s. For root users, it will eventually replace Shevery. Note, existing applications needs to change a little to use %2$s.]]></string>
     <string name="home_root_button_start">Start</string>
     <string name="home_root_button_restart">Restart</string>
 
@@ -77,11 +77,11 @@
         <item quantity="other"><![CDATA[Authorized %d applications]]></item>
     </plurals>
     <string name="home_app_management_view_authorized_apps"><![CDATA[Tap to manage authorized apps]]></string>
-    <string name="home_app_management_empty">Apps that has requested or declared Shizuku will show here.</string>
+    <string name="home_app_management_empty">Apps that has requested or declared Shevery will show here.</string>
 
     <!-- Home - Learn more -->
-    <string name="home_learn_more_title">Learn Shizuku</string>
-    <string name="home_learn_more_description">Learn how to develop with Shizuku</string>
+    <string name="home_learn_more_title">Learn Shevery</string>
+    <string name="home_learn_more_description">Learn how to develop with Shevery</string>
 
     <!-- Home - Diagnostics -->
     <string name="home_refresh">Refresh</string>
@@ -92,27 +92,27 @@
 
     <!-- Home - Adb permissions limited -->
     <string name="home_adb_is_limited_title">You need to take an extra step</string>
-    <string name="home_adb_is_limited_description">Your device manufacturer has restricted adb permissions and apps using Shizuku will not work properly.\n\nUsually, this limitation can be lifted by adjusting some options in \"Developer options\". Please read the help for details on how to do this.\n\nYou may need to restart Shizuku for the operation to take effect.</string>
+    <string name="home_adb_is_limited_description">Your device manufacturer has restricted adb permissions and apps using Shevery will not work properly.\n\nUsually, this limitation can be lifted by adjusting some options in \"Developer options\". Please read the help for details on how to do this.\n\nYou may need to restart Shevery for the operation to take effect.</string>
 
     <!-- Application management -->
     <string name="app_management_select_all">Select all</string>
     <string name="app_management_deselect_all">Deselect all</string>
     <string name="app_management_dialog_adb_is_limited_title">The permission of adb is limited</string>
     <string name="app_management_dialog_adb_is_limited_message"><![CDATA[It\'s highly possible that your device manufacturer limits the permission of adb.<p>There may be a solution for your system in <b><a href=\"%1$s\">this document</a></b>.]]></string>
-    <string name="app_management_item_summary_requires_root">* requires Shizuku runs with root</string>
+    <string name="app_management_item_summary_requires_root">* requires Shevery runs with root</string>
 
     <!-- Terminal -->
-    <string name="home_terminal_title">Use Shizuku in terminal apps</string>
-    <string name="home_terminal_description">Run commands through Shizuku in terminal apps you like</string>
+    <string name="home_terminal_title">Use Shevery in terminal apps</string>
+    <string name="home_terminal_description">Run commands through Shevery in terminal apps you like</string>
     <string name="terminal_tutorial_1">First, Export files to any where you want. You will find two files, %1$s and %2$s.</string>
-    <string name="terminal_tutorial_1_description">If there are files with the same name in the selected folder, they will be deleted.\n\nThe export function uses SAF (Storage Access Framework). It\'s reported that MIUI breaks the functions of SAF. If you are using MIUI, you may have to extract the file from Shizuku\'s apk or download from GitHub.</string>
+    <string name="terminal_tutorial_1_description">If there are files with the same name in the selected folder, they will be deleted.\n\nThe export function uses SAF (Storage Access Framework). It\'s reported that MIUI breaks the functions of SAF. If you are using MIUI, you may have to extract the file from Shevery\'s apk or download from GitHub.</string>
     <string name="terminal_export_files">Export files</string>
     <string name="terminal_tutorial_2">Then, use any text editor to open and edit %1$s.</string>
-    <string name="terminal_tutorial_2_description">For example, if you want to use Shizuku in %1$s, you should replace %2$s with %3$s (%4$s is the package name of %1$s).</string>
-    <string name="terminal_tutorial_3">Finally, move the files to somewhere where your terminal app can access, you will be able to use %1$s to run commands through Shizuku.</string>
+    <string name="terminal_tutorial_2_description">For example, if you want to use Shevery in %1$s, you should replace %2$s with %3$s (%4$s is the package name of %1$s).</string>
+    <string name="terminal_tutorial_3">Finally, move the files to somewhere where your terminal app can access, you will be able to use %1$s to run commands through Shevery.</string>
     <string name="terminal_tutorial_3_description">Some tips: grant execute permission to %1$s and add it to %2$s, you will able to use %1$s directly.</string>
     <string name="rish_description"><![CDATA[
-With %1$s, in any terminal app, you can connect to and interact with the shell runs by Shizuku.
+With %1$s, in any terminal app, you can connect to and interact with the shell runs by Shevery.
 <p>About the detailed usage %1$s, tap to view the document.
     ]]></string>
 
@@ -127,13 +127,13 @@ With %1$s, in any terminal app, you can connect to and interact with the shell r
     <string name="settings_translation">Participate in translation</string>
     <string name="settings_translation_summary">Help us translate %s into your language</string>
     <string name="settings_start_on_boot">Start on boot (root)</string>
-    <string name="settings_start_on_boot_summary">For rooted devices, Shizuku is able to start automatically on boot</string>
+    <string name="settings_start_on_boot_summary">For rooted devices, Shevery is able to start automatically on boot</string>
     <string name="settings_use_system_color">Use system theme color</string>
 
     <!-- ADB modules -->
     <string name="modules_title">ADB Modules</string>
     <string name="modules_settings_title">Modules</string>
-    <string name="modules_settings_summary">Install ZIP modules and run their actions through the active Shizuku ADB/root server</string>
+    <string name="modules_settings_summary">Install ZIP modules and run their actions through the active Shevery ADB/root server</string>
     <string name="modules_header_summary">%1$d installed, %2$d enabled</string>
     <string name="modules_version_label">Version: %s</string>
     <string name="modules_author_label">Author: %s</string>
@@ -151,7 +151,7 @@ With %1$s, in any terminal app, you can connect to and interact with the shell r
     <string name="modules_permission_service">Run Service</string>
     <string name="modules_permission_service_summary">Allow service.sh when background actions are also enabled.</string>
     <string name="modules_permission_web_bridge">WebUI shell bridge</string>
-    <string name="modules_permission_web_bridge_summary">Expose window.Shizuku only for local WebUI and only when WebView internet is off.</string>
+    <string name="modules_permission_web_bridge_summary">Expose window.Shevery only for local WebUI and only when WebView internet is off.</string>
     <string name="modules_permission_web_network">WebView internet</string>
     <string name="modules_permission_web_network_summary">Allow HTTPS navigation/assets. This disables shell bridge exposure for that WebView.</string>
     <string name="modules_permission_web_download">WebUI download()</string>
@@ -179,7 +179,7 @@ With %1$s, in any terminal app, you can connect to and interact with the shell r
     <string name="modules_webui">Module WebUI</string>
     <string name="modules_delete">Delete</string>
     <string name="modules_delete_title">Delete module?</string>
-    <string name="modules_delete_message">%s will be removed from Shizuku module storage.</string>
+    <string name="modules_delete_message">%s will be removed from Shevery module storage.</string>
     <string name="modules_action_result">Action finished: exit %d</string>
     <string name="modules_action_failed">Action failed</string>
     <string name="modules_service_result">Service finished: exit %d</string>
@@ -212,13 +212,13 @@ With %1$s, in any terminal app, you can connect to and interact with the shell r
     <string name="about_view_source_code"><![CDATA[View source code at %s]]></string>
 
     <!-- Stop -->
-    <string name="action_stop">Stop Shizuku</string>
-    <string name="dialog_stop_message">Shizuku service will be stopped.</string>
+    <string name="action_stop">Stop Shevery</string>
+    <string name="dialog_stop_message">Shevery service will be stopped.</string>
 
     <!-- Notification -->
     <string name="notification_channel_service_status">Service start status</string>
-    <string name="notification_service_starting">Shizuku service is starting…</string>
-    <string name="notification_service_start_failed">Start Shizuku service failed.</string>
+    <string name="notification_service_starting">Shevery service is starting…</string>
+    <string name="notification_service_start_failed">Start Shevery service failed.</string>
     <string name="notification_service_start_no_root">Failed to request root permission.</string>
     <string name="notification_working">Working…</string>
     <string name="notification_channel_adb_pairing">Wireless debugging pairing</string>
@@ -228,15 +228,15 @@ With %1$s, in any terminal app, you can connect to and interact with the shell r
     <string name="notification_adb_pairing_stop_searching">Stop searching</string>
     <string name="notification_adb_pairing_working_title">Pairing in progress</string>
     <string name="notification_adb_pairing_succeed_title">Pairing successful</string>
-    <string name="notification_adb_pairing_succeed_text">You can start Shizuku service now.</string>
+    <string name="notification_adb_pairing_succeed_text">You can start Shevery service now.</string>
     <string name="notification_adb_pairing_failed_title">Pairing failed</string>
     <string name="notification_adb_pairing_retry">Retry</string>
 
     <!-- Permission related, appears in system permission UI -->
-    <string name="permission_group_label" translatable="false">Shizuku</string>
+    <string name="permission_group_label" translatable="false">Shevery</string>
     <string name="permission_group_description" translatable="false">@string/permission_label</string>
-    <string name="permission_label">access Shizuku</string>
-    <string name="permission_description">Allow the app to use Shizuku.</string>
+    <string name="permission_label">access Shevery</string>
+    <string name="permission_description">Allow the app to use Shevery.</string>
     <string name="permission_warning_template"><![CDATA[Allow <b>%1$s</b> to %2$s?]]></string>
     <string name="grant_dialog_button_allow_always">Allow all the time</string>
     <string name="grant_dialog_button_deny">"Deny"</string>
@@ -252,24 +252,43 @@ With %1$s, in any terminal app, you can connect to and interact with the shell r
     <string name="toast_copied_to_clipboard_with_text"><![CDATA[<b>%s</b> has been copied to clipboard.]]></string>
 
     <!-- Messages for legacy -->
-    <string name="dialog_legacy_not_support_title">%1$s does not support modern Shizuku</string>
-    <string name="dialog_legacy_not_support_message"><![CDATA[Legacy Shizuku has been deprecated since March 2019. Also, legacy Shizuku does not work on newer Android systems.<p>Please ask the developer of <b>%1$s</b> to update.]]></string>
-    <string name="dialog_requesting_legacy_title">%1$s is requesting legacy Shizuku</string>
-    <string name="dialog_requesting_legacy_message"><![CDATA[<b>%1$s</b> has modern Shizuku support, but it\'s requesting legacy Shizuku. This could because Shizuku is not running, please check in Shizuku app.<p>Legacy Shizuku has been deprecated since March 2019.]]></string>
-    <string name="dialog_requesting_legacy_button_open_shizuku">Open Shizuku</string>
+    <string name="dialog_legacy_not_support_title">%1$s does not support modern Shevery</string>
+    <string name="dialog_legacy_not_support_message"><![CDATA[Legacy Shevery has been deprecated since March 2019. Also, legacy Shevery does not work on newer Android systems.<p>Please ask the developer of <b>%1$s</b> to update.]]></string>
+    <string name="dialog_requesting_legacy_title">%1$s is requesting legacy Shevery</string>
+    <string name="dialog_requesting_legacy_message"><![CDATA[<b>%1$s</b> has modern Shevery support, but it\'s requesting legacy Shevery. This could because Shevery is not running, please check in Shevery app.<p>Legacy Shevery has been deprecated since March 2019.]]></string>
+    <string name="dialog_requesting_legacy_button_open_shizuku">Open Shevery</string>
 
     <!-- Lab Features -->
     <string name="lab_features_title">Lab Features</string>
     <string name="lab_features_summary">Experimental features</string>
-    <string name="shizuku_connectors_title">Shizuku Connectors</string>
-    <string name="shizuku_connectors_summary">Allow plugins to activate Shizuku</string>
+    <string name="shizuku_connectors_title">Shevery Connectors</string>
+    <string name="shizuku_connectors_summary">Allow plugins to activate Shevery</string>
     <string name="unsafe_warning_title">Warning</string>
     <string name="unsafe_warning_message">Enabling this feature is UNSAFE. Are you sure?</string>
     <string name="dhizuku_mode_title">Dhizuku Mode</string>
-    <string name="dhizuku_mode_summary">Allow Shizuku to operate via binding to Dhizuku</string>
+    <string name="dhizuku_mode_summary">Allow Shevery to operate via binding to Dhizuku</string>
+    <string name="home_dhizuku_title"><![CDATA[Start (via Dhizuku)]]></string>
+    <string name="home_dhizuku_description"><![CDATA[For devices managed by Dhizuku, you can start Shevery directly using Device Owner privileges.]]></string>
     <string name="dhizuku_warning_title">Warning: Dhizuku Mode</string>
-    <string name="dhizuku_warning_message">Dhizuku is designed for Device Owner/admin privileges. Some shell and ADB-specific commands may not work properly or may be entirely unsupported when running Shizuku via Dhizuku. Are you sure you want to proceed?</string>
+    <string name="dhizuku_warning_message">Dhizuku is designed for Device Owner/admin privileges. Some shell and ADB-specific commands may not work properly or may be entirely unsupported when running Shevery via Dhizuku. Are you sure you want to proceed?</string>
     <string name="settings_tcp_mode">TCP Mode</string>
     <string name="settings_tcp_mode_summary">Listen for server commands on localhost TCP socket (fallback)</string>
     <string name="settings_service_group">Service Maintenance</string>
+
+    <!-- Lab Features - Service Behavior -->
+    <string name="lab_service_behavior_title">Service Behavior</string>
+    <string name="lab_keep_alive_title">Keep Service Alive</string>
+    <string name="lab_keep_alive_summary">Periodically check that the Shevery service is running and restart it if needed</string>
+    <string name="lab_auto_restart_title">Auto-Restart on Crash</string>
+    <string name="lab_auto_restart_summary">Automatically attempt to restart the Shevery service if it crashes unexpectedly</string>
+    <string name="lab_notify_death_title">Notify on Service Stop</string>
+    <string name="lab_notify_death_summary">Show a notification when the Shevery service stops unexpectedly</string>
+
+    <!-- Lab Features - Debugging -->
+    <string name="lab_debugging_title">Debugging</string>
+    <string name="lab_verbose_logging_title">Verbose Logging</string>
+    <string name="lab_verbose_logging_summary">Write detailed debug logs to Logcat. Disable in production to save battery</string>
+    <string name="notification_channel_watchdog">Service Watchdog</string>
+    <string name="notification_watchdog_title">Shevery Service Stopped</string>
+    <string name="notification_watchdog_text">The Shevery service has stopped unexpectedly.</string>
 </resources>

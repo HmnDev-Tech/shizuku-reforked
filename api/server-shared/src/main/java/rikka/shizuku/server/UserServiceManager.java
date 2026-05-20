@@ -228,7 +228,7 @@ public abstract class UserServiceManager {
 
             exitCode = process.waitFor();
         } catch (Throwable e) {
-            throw new IllegalStateException(e.getMessage());
+            throw new IllegalStateException(e);
         }
         if (exitCode != 0) {
             throw new IllegalStateException("sh exited with " + exitCode);

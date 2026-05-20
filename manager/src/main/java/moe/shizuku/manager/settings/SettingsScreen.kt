@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
@@ -101,6 +102,16 @@ fun SettingsScreen() {
     var recommandAction by remember {
         mutableStateOf(ModuleSettings.recommandForAction())
     }
+    var computApiKey by remember {
+        mutableStateOf(ModuleSettings.getComputApiKey())
+    }
+    var computRecommand by remember {
+        mutableStateOf(ModuleSettings.isComputRecommandEnabled())
+    }
+    var computAiExplain by remember {
+        mutableStateOf(ModuleSettings.isComputAiExplainEnabled())
+    }
+    var showApiKeyDialog by remember { mutableStateOf(false) }
     var recreateTick by remember { mutableIntStateOf(0) }
 
     val localeOptions = remember(languageTag) {
@@ -291,6 +302,39 @@ fun SettingsScreen() {
                 )
             }
         }
+
+        item {
+            SettingsGroup(title = "Comput Console Settings") {
+                SettingsRow(
+                    icon = R.drawable.ic_code_24dp,
+                    title = "Google AI Studio API Key",
+                    summary = if (computApiKey.isBlank()) "Not configured (Gemini AI will not work)" else "••••••••••••••••" + computApiKey.takeLast(4),
+                    onClick = { showApiKeyDialog = true }
+                )
+                GroupDivider()
+                SwitchSettingsRow(
+                    icon = R.drawable.ic_warning_24,
+                    title = "ReCommand for Comput",
+                    summary = "Show a confirmation dialog before running commands in Comput console",
+                    checked = computRecommand,
+                    onCheckedChange = { enabled ->
+                        ModuleSettings.setComputRecommandEnabled(enabled)
+                        computRecommand = enabled
+                    }
+                )
+                GroupDivider()
+                SwitchSettingsRow(
+                    icon = R.drawable.ic_outline_info_24,
+                    title = "Explain with AI",
+                    summary = "Provide automated option to explain terminal outputs with Gemini",
+                    checked = computAiExplain,
+                    onCheckedChange = { enabled ->
+                        ModuleSettings.setComputAiExplainEnabled(enabled)
+                        computAiExplain = enabled
+                    }
+                )
+            }
+        }
     }
 
     if (showLanguageDialog) {
@@ -381,6 +425,42 @@ fun SettingsScreen() {
                 customPermissions = value
                 showCustomPermissionsDialog = false
             }
+        )
+    }
+
+    if (showApiKeyDialog) {
+        var tempKey by remember { mutableStateOf(computApiKey) }
+        AlertDialog(
+            onDismissRequest = { showApiKeyDialog = false },
+            title = { Text("Google AI Studio API Key") },
+            text = {
+                OutlinedTextField(
+                    value = tempKey,
+                    onValueChange = { tempKey = it },
+                    label = { Text("API Key") },
+                    placeholder = { Text("AIzaSy...") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        ModuleSettings.setComputApiKey(tempKey)
+                        computApiKey = tempKey
+                        showApiKeyDialog = false
+                    }
+                ) {
+                    Text(stringResource(android.R.string.ok))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showApiKeyDialog = false }) {
+                    Text(stringResource(android.R.string.cancel))
+                }
+            },
+            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+            shape = MaterialTheme.shapes.extraLarge
         )
     }
 }

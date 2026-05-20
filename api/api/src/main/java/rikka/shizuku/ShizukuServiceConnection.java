@@ -9,8 +9,8 @@ import android.os.RemoteException;
 
 import androidx.annotation.Nullable;
 
-import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 import moe.shizuku.server.IShizukuServiceConnection;
 
@@ -18,7 +18,7 @@ class ShizukuServiceConnection extends IShizukuServiceConnection.Stub {
 
     private static final Handler MAIN_HANDLER = new Handler(Looper.getMainLooper());
 
-    private final Set<ServiceConnection> connections = new HashSet<>();
+    private final Set<ServiceConnection> connections = new CopyOnWriteArraySet<>();
     private final ComponentName componentName;
     private IBinder binder;
 

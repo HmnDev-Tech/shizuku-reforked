@@ -31,6 +31,9 @@ public class ShizukuSettings {
     private static SharedPreferences sPreferences;
 
     public static SharedPreferences getPreferences() {
+        if (sPreferences == null) {
+            return new EmptySharedPreferencesImpl();
+        }
         return sPreferences;
     }
 
@@ -69,12 +72,14 @@ public class ShizukuSettings {
             LaunchMethod.UNKNOWN,
             LaunchMethod.ROOT,
             LaunchMethod.ADB,
+            LaunchMethod.DHIZUKU,
     })
     @Retention(SOURCE)
     public @interface LaunchMethod {
         int UNKNOWN = -1;
         int ROOT = 0;
         int ADB = 1;
+        int DHIZUKU = 3;
     }
 
     @LaunchMethod

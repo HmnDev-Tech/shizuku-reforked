@@ -45,7 +45,7 @@ public class Shizuku {
     private static boolean permissionGranted = false;
     private static boolean shouldShowRequestPermissionRationale = false;
     private static boolean preV11 = false;
-    private static boolean binderReady = false;
+    private static volatile boolean binderReady = false;
 
     private static final IShizukuApplication SHIZUKU_APPLICATION = new IShizukuApplication.Stub() {
 
@@ -78,6 +78,9 @@ public class Shizuku {
         onBinderReceived(null, null);
     };
 
+    // backwards-compat shim for pre-v13 servers
+    private static final int TRANSACTION_attachApplication_v13 = 18;
+
     private static boolean attachApplicationV13(IBinder binder, String packageName) throws RemoteException {
         boolean result;
 
@@ -92,7 +95,7 @@ public class Shizuku {
             data.writeStrongBinder(SHIZUKU_APPLICATION.asBinder());
             data.writeInt(1);
             args.writeToParcel(data, 0);
-            result = binder.transact(18 /*IShizukuService.Stub.TRANSACTION_attachApplication*/, data, reply, 0);
+            result = binder.transact(TRANSACTION_attachApplication_v13, data, reply, 0);
             reply.readException();
         } finally {
             reply.recycle();
@@ -101,6 +104,9 @@ public class Shizuku {
 
         return result;
     }
+
+    // backwards-compat shim for pre-v11 servers
+    private static final int TRANSACTION_attachApplication_v11 = 14;
 
     private static boolean attachApplicationV11(IBinder binder, String packageName) throws RemoteException {
         boolean result;
@@ -111,7 +117,7 @@ public class Shizuku {
             data.writeInterfaceToken("moe.shizuku.server.IShizukuService");
             data.writeStrongBinder(SHIZUKU_APPLICATION.asBinder());
             data.writeString(packageName);
-            result = binder.transact(14 /*IShizukuService.Stub.TRANSACTION_attachApplication*/, data, reply, 0);
+            result = binder.transact(TRANSACTION_attachApplication_v11, data, reply, 0);
             reply.readException();
         } finally {
             reply.recycle();
@@ -131,6 +137,7 @@ public class Shizuku {
             serverUid = -1;
             serverApiVersion = -1;
             serverContext = null;
+            permissionGranted = false;
 
             scheduleBinderDeadListeners();
         } else {
@@ -143,7 +150,7 @@ public class Shizuku {
             try {
                 binder.linkToDeath(DEATH_RECIPIENT, 0);
             } catch (Throwable e) {
-                Log.i("ShizukuApplication", "attachApplication");
+                Log.w("ShizukuApplication", "linkToDeath failed", e);
             }
 
             try {
@@ -580,7 +587,7 @@ public class Shizuku {
 
         final ComponentName componentName;
         int versionCode = 1;
-        String processName;
+        String processName = "";
         String tag;
         boolean debuggable = false;
         boolean daemon = true;
@@ -857,6 +864,9 @@ public class Shizuku {
 
     /**
      * Check if self has permission.
+     * <p>
+     * Note: This reflects the value at last binder attach, and callers should
+     * use {@link #addBinderReceivedListenerSticky(OnBinderReceivedListener)} to re-check after reconnect.
      *
      * @return Either {@link android.content.pm.PackageManager#PERMISSION_GRANTED}
      * or {@link android.content.pm.PackageManager#PERMISSION_DENIED}.

@@ -18,6 +18,10 @@ object ModuleSettings {
     private const val KEY_TRUSTED_MODULES = "adb_modules_trusted_modules"
     private const val KEY_CONNECTOR_ENABLED = "shizuku_connector_enabled"
     private const val KEY_DHIZUKU_ENABLED = "shizuku_dhizuku_enabled"
+    private const val KEY_KEEP_ALIVE = "shizuku_keep_alive"
+    private const val KEY_VERBOSE_LOGGING = "shizuku_verbose_logging"
+    private const val KEY_AUTO_RESTART = "shizuku_auto_restart_on_crash"
+    private const val KEY_NOTIFY_DEATH = "shizuku_notify_service_death"
 
 
     enum class AccessMode(
@@ -209,5 +213,64 @@ object ModuleSettings {
         ShizukuSettings.getPreferences().edit().putBoolean(KEY_DHIZUKU_ENABLED, value).apply()
     }
 
+    fun isKeepAlive(): Boolean {
+        return ShizukuSettings.getPreferences().getBoolean(KEY_KEEP_ALIVE, false)
+    }
 
+    fun setKeepAlive(value: Boolean) {
+        ShizukuSettings.getPreferences().edit().putBoolean(KEY_KEEP_ALIVE, value).apply()
+    }
+
+    fun isVerboseLogging(): Boolean {
+        return ShizukuSettings.getPreferences().getBoolean(KEY_VERBOSE_LOGGING, false)
+    }
+
+    fun setVerboseLogging(value: Boolean) {
+        ShizukuSettings.getPreferences().edit().putBoolean(KEY_VERBOSE_LOGGING, value).apply()
+    }
+
+    fun isAutoRestartOnCrash(): Boolean {
+        return ShizukuSettings.getPreferences().getBoolean(KEY_AUTO_RESTART, false)
+    }
+
+    fun setAutoRestartOnCrash(value: Boolean) {
+        ShizukuSettings.getPreferences().edit().putBoolean(KEY_AUTO_RESTART, value).apply()
+    }
+
+    fun isNotifyOnServiceDeath(): Boolean {
+        return ShizukuSettings.getPreferences().getBoolean(KEY_NOTIFY_DEATH, true)
+    }
+
+    fun setNotifyOnServiceDeath(value: Boolean) {
+        ShizukuSettings.getPreferences().edit().putBoolean(KEY_NOTIFY_DEATH, value).apply()
+    }
+
+    // Comput Settings
+    private const val KEY_COMPUT_API_KEY = "comput_api_key"
+    private const val KEY_COMPUT_RECOMMAND = "comput_recommand"
+    private const val KEY_COMPUT_AI_EXPLAIN = "comput_ai_explain"
+
+    fun getComputApiKey(): String {
+        return ShizukuSettings.getPreferences().getString(KEY_COMPUT_API_KEY, "") ?: ""
+    }
+
+    fun setComputApiKey(value: String) {
+        ShizukuSettings.getPreferences().edit().putString(KEY_COMPUT_API_KEY, value).apply()
+    }
+
+    fun isComputRecommandEnabled(): Boolean {
+        return ShizukuSettings.getPreferences().getBoolean(KEY_COMPUT_RECOMMAND, true)
+    }
+
+    fun setComputRecommandEnabled(value: Boolean) {
+        ShizukuSettings.getPreferences().edit().putBoolean(KEY_COMPUT_RECOMMAND, value).apply()
+    }
+
+    fun isComputAiExplainEnabled(): Boolean {
+        return ShizukuSettings.getPreferences().getBoolean(KEY_COMPUT_AI_EXPLAIN, true)
+    }
+
+    fun setComputAiExplainEnabled(value: Boolean) {
+        ShizukuSettings.getPreferences().edit().putBoolean(KEY_COMPUT_AI_EXPLAIN, value).apply()
+    }
 }

@@ -37,8 +37,6 @@ class ModuleWebViewActivity : AppActivity() {
         }
 
         setContent {
-            var pendingCommand by remember { mutableStateOf<ModuleCommandRequest?>(null) }
-            var pendingDecision by remember { mutableStateOf<((Boolean) -> Unit)?>(null) }
             val trusted = ModuleSettings.isModuleTrusted(module.id)
             val webNetworkAllowed = ModuleSettings.canUseWebNetwork(module)
             val exposeBridge = module.enabled &&
@@ -70,10 +68,7 @@ class ModuleWebViewActivity : AppActivity() {
                                         ModuleJsBridge(
                                             module,
                                             commandReviewer = { request ->
-                                                confirmCommandOnUiThread(request) { pendingRequest, callback ->
-                                                    pendingCommand = pendingRequest
-                                                    pendingDecision = callback
-                                                }
+                                                confirmCommandOnUiThread(request)
                                             }
                                         ),
                                         "Shizuku"
@@ -86,44 +81,42 @@ class ModuleWebViewActivity : AppActivity() {
                             .padding(padding)
                     )
                 }
-
-                pendingCommand?.let { request ->
-                    ReCommandDialog(
-                        request = request,
-                        onDismiss = {
-                            pendingDecision?.invoke(false)
-                            pendingCommand = null
-                            pendingDecision = null
-                        },
-                        onReject = {
-                            pendingDecision?.invoke(false)
-                            pendingCommand = null
-                            pendingDecision = null
-                        },
-                        onApprove = {
-                            pendingDecision?.invoke(true)
-                            pendingCommand = null
-                            pendingDecision = null
-                        }
-                    )
-                }
             }
         }
     }
 
     private fun confirmCommandOnUiThread(
-        request: ModuleCommandRequest,
-        showDialog: (ModuleCommandRequest, (Boolean) -> Unit) -> Unit
+        request: ModuleCommandRequest
     ): Boolean {
         val latch = CountDownLatch(1)
         val approved = AtomicBoolean(false)
         runOnUiThread {
-            showDialog(request) { allowed ->
-                approved.set(allowed)
-                latch.countDown()
-            }
+            com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+                .setTitle(moe.shizuku.manager.R.string.modules_recommand_title)
+                .setMessage(
+                    getString(moe.shizuku.manager.R.string.modules_recommand_source, request.module.name, "WebUI") +
+                    "\n\n" + request.command
+                )
+                .setPositiveButton(moe.shizuku.manager.R.string.modules_recommand_execute) { _, _ ->
+                    approved.set(true)
+                    latch.countDown()
+                }
+                .setNegativeButton(moe.shizuku.manager.R.string.modules_recommand_close) { _, _ ->
+                    approved.set(false)
+                    latch.countDown()
+                }
+                .setOnCancelListener {
+                    approved.set(false)
+                    latch.countDown()
+                }
+                .show()
         }
-        return latch.await(5, TimeUnit.MINUTES) && approved.get()
+        try {
+            latch.await(5, TimeUnit.MINUTES)
+        } catch (e: InterruptedException) {
+            approved.set(false)
+        }
+        return approved.get()
     }
 
     private class LocalModuleWebViewClient(

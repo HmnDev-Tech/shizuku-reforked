@@ -18,6 +18,7 @@ public class RemoteProcessHolder extends IRemoteProcess.Stub {
     private final Process process;
     private ParcelFileDescriptor in;
     private ParcelFileDescriptor out;
+    private ParcelFileDescriptor err;
 
     public RemoteProcessHolder(Process process, IBinder token) {
         this.process = process;
@@ -67,11 +68,14 @@ public class RemoteProcessHolder extends IRemoteProcess.Stub {
 
     @Override
     public ParcelFileDescriptor getErrorStream() {
-        try {
-            return ParcelFileDescriptorUtil.pipeFrom(process.getErrorStream());
-        } catch (IOException e) {
-            throw new IllegalStateException(e);
+        if (err == null) {
+            try {
+                err = ParcelFileDescriptorUtil.pipeFrom(process.getErrorStream());
+            } catch (IOException e) {
+                throw new IllegalStateException(e);
+            }
         }
+        return err;
     }
 
     @Override
