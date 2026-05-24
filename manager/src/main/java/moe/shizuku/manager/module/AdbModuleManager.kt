@@ -168,6 +168,7 @@ object AdbModuleManager {
 
         val binder = Shizuku.getBinder() ?: error("Shizuku service is not running.")
         val service = IShizukuService.Stub.asInterface(binder)
+        val binDir = ensureSuShim(moe.shizuku.manager.application)
         val env = arrayOf(
             "MODDIR=${module.directory.absolutePath}",
             "ASH_STANDALONE=1",
@@ -178,7 +179,8 @@ object AdbModuleManager {
             "AXERON=true",
             "AXERONVER=1.0.0",
             "MODPATH=${module.directory.absolutePath}",
-            "ARCH=${android.os.Build.SUPPORTED_ABIS.firstOrNull() ?: "arm64-v8a"}"
+            "ARCH=${android.os.Build.SUPPORTED_ABIS.firstOrNull() ?: "arm64-v8a"}",
+            "PATH=${binDir.absolutePath}:/product/bin:/apex/com.android.runtime/bin:/apex/com.android.art/bin:/system_ext/bin:/system/bin:/system/xbin:/odm/bin:/vendor/bin:/vendor/xbin:/sbin:/data/adb/apatch:/data/adb/ksu/bin"
         )
         val remote = service.newProcess(
             arrayOf("sh", script.absolutePath),
@@ -233,6 +235,7 @@ object AdbModuleManager {
 
         val binder = Shizuku.getBinder() ?: error("Shizuku service is not running.")
         val service = IShizukuService.Stub.asInterface(binder)
+        val binDir = ensureSuShim(moe.shizuku.manager.application)
         val env = arrayOf(
             "MODDIR=${module.directory.absolutePath}",
             "ASH_STANDALONE=1",
@@ -243,7 +246,8 @@ object AdbModuleManager {
             "AXERON=true",
             "AXERONVER=1.0.0",
             "MODPATH=${module.directory.absolutePath}",
-            "ARCH=${android.os.Build.SUPPORTED_ABIS.firstOrNull() ?: "arm64-v8a"}"
+            "ARCH=${android.os.Build.SUPPORTED_ABIS.firstOrNull() ?: "arm64-v8a"}",
+            "PATH=${binDir.absolutePath}:/product/bin:/apex/com.android.runtime/bin:/apex/com.android.art/bin:/system_ext/bin:/system/bin:/system/xbin:/odm/bin:/vendor/bin:/vendor/xbin:/sbin:/data/adb/apatch:/data/adb/ksu/bin"
         )
         val remote = service.newProcess(
             arrayOf("sh", script.absolutePath),
@@ -427,6 +431,43 @@ object AdbModuleManager {
         require(childPath == rootPath || childPath.startsWith("$rootPath/")) {
             "Unsafe module path: ${child.name}"
         }
+    }
+
+    fun ensureSuShim(context: Context): File {
+        val binDir = File(context.filesDir, "bin").apply { mkdirs() }
+        val suFile = File(binDir, "su")
+        val shimScript = """
+            #!/system/bin/sh
+            # Robust su shim for shevery / Shizuku root environment
+            if [ "${'$'}(id -u)" -eq 0 ]; then
+                while [ ${'$'}# -gt 0 ]; do
+                    case "${'$'}1" in
+                        -c)
+                            shift
+                            exec sh -c "${'$'}@"
+                            ;;
+                        *)
+                            shift
+                            ;;
+                    esac
+                done
+                exec sh
+            else
+                for p in /system/bin/su /system/xbin/su /sbin/su /vendor/bin/su /data/adb/ksu/bin/su /data/adb/apatch/su; do
+                    if [ -x "${'$'}p" ] && [ "${'$'}p" != "${'$'}0" ]; then
+                        exec "${'$'}p" "${'$'}@"
+                    fi
+                done
+                echo "su: not found" >&2
+                exit 127
+            fi
+        """.trimIndent()
+
+        if (!suFile.exists() || suFile.readText() != shimScript) {
+            suFile.writeText(shimScript)
+            suFile.setExecutable(true, false)
+        }
+        return binDir
     }
 
     private fun markScriptsExecutable(directory: File) {
